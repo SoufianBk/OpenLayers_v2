@@ -1,1 +1,1 @@
-#First step of the thesis : Including React to the project
+# First step of the thesis : Including React to the project
