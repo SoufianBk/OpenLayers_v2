@@ -1,6 +1,7 @@
 import React from "react";
 import './App.css';
 import MyMap from "./MyMap";
+import Geo from "./Geo";
 import 'ol/ol.css';
 import {useGeographic} from "ol/proj";
 
@@ -33,7 +34,7 @@ class App extends React.Component {
     render() {
         const { DataisLoaded, items } = this.state;
         if (!DataisLoaded) return <div>
-            <h1> Pleses wait some time.... </h1> </div> ;
+            <h1> Loading.... </h1> </div> ;
 
 
         let div = [];
@@ -46,6 +47,7 @@ class App extends React.Component {
 
         return (
             <div>
+                <Geo></Geo>
                 <MyMap></MyMap>
             </div>
         );

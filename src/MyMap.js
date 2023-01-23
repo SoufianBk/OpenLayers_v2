@@ -17,7 +17,7 @@ import {useGeographic} from "ol/proj";
 class PublicMap extends Component {
     constructor(props) {
         super(props);
-        this.state = {center: [4, 50], zoom: 0, tmp: 0};
+        this.state = {center: [12, 55], zoom: 6, tmp: 0};
 
         this.map = new Map({
             target: null,
