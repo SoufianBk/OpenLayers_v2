@@ -12,11 +12,12 @@ import Circle from "ol/style/Circle"
 import Fill from "ol/style/Fill"
 import MultiPoint from "ol/geom/MultiPoint"
 import {getVectorContext} from 'ol/render';
+import {useGeographic} from "ol/proj";
 
 class PublicMap extends Component {
     constructor(props) {
         super(props);
-        this.state = {center: [4, 50], zoom: 5, tmp: 0};
+        this.state = {center: [4, 50], zoom: 0, tmp: 0};
 
         this.map = new Map({
             target: null,
@@ -124,6 +125,7 @@ class PublicMap extends Component {
     }
 
     render() {
+        this.state = { geographic: true };
         return (
             <div id="map" style={{width: "100%", height: "1050px"}}></div>
         );

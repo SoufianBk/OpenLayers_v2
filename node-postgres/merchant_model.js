@@ -7,23 +7,8 @@ const pool = new Pool({
     port: 5432,
 });
 
-const getMerchants = () => pool.query('SELECT * FROM Merchants ORDER BY id ASC')
-
-const getTest = () => pool.query('SELECT * FROM spatial_ref_sys LIMIT 10')
-
-const createMerchant = (body) => {
-    const { name, email } = body
-    pool.query('INSERT INTO Merchants (name, email) VALUES ($1, $2) RETURNING *', [name, email])
-}
-
-const deleteMerchant = () => {
-    const id = parseInt(request.params.id)
-    pool.query('DELETE FROM Merchants WHERE ID = $1', [id])
-}
+const getTrips = () => pool.query('SELECT asMFJSON(transform(trip, 4326), 2, 2) FROM Ships LIMIT 10')
 
 module.exports = {
-    getMerchants,
-    createMerchant,
-    deleteMerchant,
-    getTest,
+    getTrips,
 }

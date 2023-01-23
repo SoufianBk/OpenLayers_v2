@@ -13,9 +13,9 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', (req, res) => {
-    merchant_model.getTest()
+    merchant_model.getTrips()
         .then(response => {
-            res.status(200).send(response);
+            res.status(200).send(response.rows);
         })
         .catch(error => {
             res.status(500).send(error);
