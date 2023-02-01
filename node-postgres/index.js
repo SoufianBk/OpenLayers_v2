@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const port = 3001
 
-const merchant_model = require('./merchant_model')
+const db = require('./dbqueries')
 
 app.use(express.json())
 app.use(function (req, res, next) {
@@ -13,7 +13,7 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', (req, res) => {
-    merchant_model.getTrips()
+    db.getTrips()
         .then(response => {
             res.status(200).send(response.rows);
         })

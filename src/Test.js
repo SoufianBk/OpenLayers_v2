@@ -13,11 +13,12 @@ import Fill from "ol/style/Fill"
 import MultiPoint from "ol/geom/MultiPoint"
 import {getVectorContext} from 'ol/render';
 import {useGeographic} from "ol/proj";
+import VectorSource from "ol/source/Vector";
 
-class PublicMap extends Component {
+class Test extends Component {
     constructor(props) {
         super(props);
-        this.state = {center: [12, 55], zoom: 6, tmp: 0};
+        this.state = {center: [12, 55], zoom: 6, items: [], isLoaded: false, tmp: 0};
 
         this.map = new Map({
             target: null,
@@ -32,28 +33,38 @@ class PublicMap extends Component {
             })
         });
 
-        this.getData();
         this.map.render();
     }
 
 
     getData() {
-        var file = 'https://raw.githubusercontent.com/SoufianBk/MobilityDB-OL/main/trips.json';
+        console.log("Ready")
+        let trip0 = eval('('+ this.state.items[0].asmfjson + ')');
+        trip0.type = "LineString"
 
-        var SRC_bigJSON = new Vector({
-            url: file,  // big JSON file
-            format: new GeoJSON()
+        let vectorSource = new VectorSource({
+            features: new GeoJSON().readFeatures(trip0),  // big JSON file
         });
+        console.log(trip0)
 
-        var bigJSON = new VectorLayer({
-            source: SRC_bigJSON,
+        for (var i = 1; i < 100; i++) {
+            let trip = eval('('+ this.state.items[i].asmfjson + ')');
+            trip.type = "LineString"
+            vectorSource.addFeature(new GeoJSON().readFeature(trip))
+            console.log(trip)
+        }
+
+
+        let vectorLayer = new VectorLayer({
+            source: vectorSource,
             style: new Style({
                 stroke: new Stroke({
                     color: 'rgba(255, 255, 255, 0)'
                 })
             })
         });
-        this.map.addLayer(bigJSON);
+
+        this.map.addLayer(vectorLayer);
 
         const ptStyle = new Style({
             image: new Circle({
@@ -63,29 +74,24 @@ class PublicMap extends Component {
             }),
         });
 
-        this.bigJSONPostRender(bigJSON, ptStyle, SRC_bigJSON)
-    }
-
-    bigJSONPostRender(bigJSON, ptStyle, SRC_bigJSON) {
-        var features
-        var tmp = 0
-        var map2 = this.map
-        bigJSON.on('postrender', function (event) {
+        let features
+        let tmp = 0
+        let map2 = this.map
+        vectorLayer.on('postrender', function (event) {
             const vectorContext = getVectorContext(event);
             tmp = tmp + 1
 
-            features = SRC_bigJSON.getFeatures();
-            var first = features[1200]
+            features = vectorSource.getFeatures();
+            console.log(features.length)
+            var first = features[0]
 
-            var coordinates = []
+            let coordinates = [];
 
             features.forEach((feature) => {
                 if (feature.getGeometry().getCoordinates().length > tmp) {
                     coordinates.push(feature.getGeometry().getCoordinates()[tmp])
                 }
             });
-
-            console.info(first.getGeometry().getCoordinates().length)
 
             vectorContext.setStyle(ptStyle);
             vectorContext.drawGeometry(new MultiPoint(coordinates));
@@ -94,6 +100,7 @@ class PublicMap extends Component {
                 map2.render()
             }
         });
+
     }
 
     updateMap() {
@@ -102,6 +109,15 @@ class PublicMap extends Component {
     }
 
     componentDidMount() {
+        fetch("http://localhost:3001")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.state.isLoaded = true;
+                    this.state.items = result;
+                }
+            )
+
         this.map.setTarget("map");
 
         // Listen to map changes
@@ -121,10 +137,15 @@ class PublicMap extends Component {
     }
 
     render() {
-        return (
-            <div id="map" style={{width: "100%", height: "1050px"}}></div>
-        );
+        if (!this.state.isLoaded) {
+            console.log("Loading ...")
+            return (<div id="map" style={{width: "100%", height: "1050px"}}></div>);
+        } else {
+            console.log("Ready")
+            this.getData();
+            return (<div id="map" style={{width: "100%", height: "1050px"}}></div>);
+        }
     }
 }
 
-export default PublicMap;
+export default Test;
