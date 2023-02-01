@@ -33,9 +33,6 @@ function MapJSONdb() {
     }, [])
 
     const mapElement = useRef()
-
-    // create state ref that can be accessed in OpenLayers onclick callback function
-    //  https://stackoverflow.com/a/60643670
     const mapRef = useRef()
     mapRef.current = map
 
@@ -59,7 +56,7 @@ function MapJSONdb() {
 
     }, [])
 
-    console.log(items)
+    // console.log(items)
 
     if (!isLoaded) {
         console.log("Loading ...")
@@ -73,10 +70,11 @@ function MapJSONdb() {
             features: new GeoJSON().readFeatures(trip0),  // big JSON file
         });
 
-        for (var i = 1; i < 1000; i++) {
+        for (var i = 1; i < 500; i++) {
             let trip = eval('('+ items[i].asmfjson + ')');
             trip.type = "LineString"
             vectorSource.addFeature(new GeoJSON().readFeature(trip))
+            // console.log(trip)
         }
 
 
@@ -107,7 +105,7 @@ function MapJSONdb() {
             tmp = tmp + 1
 
             features = vectorSource.getFeatures();
-            console.log(features.length)
+            // console.log(features.length)
             var first = features[0]
 
             let coordinates = [];
@@ -124,6 +122,8 @@ function MapJSONdb() {
 
             if (tmp < 1200) {
                 map2.render()
+            } else {
+                console.log(tmp)
             }
         });
 

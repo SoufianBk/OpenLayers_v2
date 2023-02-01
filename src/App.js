@@ -21,8 +21,8 @@ class App extends React.Component {
             <div>
                 <Geo></Geo>
                 {/*<MyMap></MyMap>*/}
-                {/*<MapJSONdb></MapJSONdb>*/}
-                <Test></Test>
+                <MapJSONdb></MapJSONdb>
+                {/*<Test></Test>*/}
             </div>
         );
     }
