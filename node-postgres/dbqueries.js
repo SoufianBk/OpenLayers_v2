@@ -7,7 +7,7 @@ const pool = new Pool({
     port: 5432,
 });
 
-const getTrips = () => pool.query('SELECT asMFJSON(transform(trip, 4326), 2, 2) FROM Ships WHERE json_array_length(asMFJSON(transform(trip, 4326), 2, 2)::json -> \'coordinates\') > 200 LIMIT 1000')
+const getTrips = () => pool.query('SELECT asMFJSON(transform(trip, 4326), 2, 2)::json FROM Ships WHERE json_array_length(asMFJSON(transform(trip, 4326), 2, 2)::json -> \'coordinates\') > 200 LIMIT 1000')
 
 //
 

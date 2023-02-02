@@ -63,7 +63,7 @@ function MapJSONdb() {
         return <div ref={mapElement} className="map-container" style={{width: "100%", height: "1050px"}}></div>;
     } else {
         console.log("Ready")
-        let trip0 = eval('('+ items[0].asmfjson + ')');
+        let trip0 = items[0].asmfjson;
         trip0.type = "LineString"
 
         let vectorSource = new VectorSource({
@@ -71,7 +71,7 @@ function MapJSONdb() {
         });
 
         for (var i = 1; i < 500; i++) {
-            let trip = eval('('+ items[i].asmfjson + ')');
+            let trip = items[i].asmfjson;
             trip.type = "LineString"
             vectorSource.addFeature(new GeoJSON().readFeature(trip))
             // console.log(trip)
