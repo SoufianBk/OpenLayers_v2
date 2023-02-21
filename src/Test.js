@@ -10,6 +10,7 @@ import VectorTileLayer from "ol/layer/VectorTile";
 import VectorTileSource from 'ol/source/VectorTile';
 import MapboxVector from 'ol/layer/MapboxVector.js';
 import {Fill, Circle, Stroke, Style, Text} from 'ol/style.js';
+import {createXYZ} from 'ol/tilegrid';
 
 function yourStyleFunction(feature, resolution) {
     return [new Style({
@@ -50,15 +51,18 @@ function Test() {
                     declutter: true,
                     source: new VectorTileSource({
                         format: new MVT(),
-                        defaultDataProject: 'ESPG:4326',
-                        url: 'https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token=pk.eyJ1Ijoid2F6eXN0YXRzIiwiYSI6ImNsZTVoc3E1ZTA5c3QzdnM0dGczbnl2NXgifQ.RdsCypYt4CqvhpIuhjaX4Q'
+                        defaultDataProject: 'ESPG:4236',
+                        tilePixelRatio: 1,
+                        tileGrid: createXYZ({maxZoom: 13}),
+                        // url: 'https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token=pk.eyJ1Ijoid2F6eXN0YXRzIiwiYSI6ImNsZTVoc3E1ZTA5c3QzdnM0dGczbnl2NXgifQ.RdsCypYt4CqvhpIuhjaX4Q'
+                        url: 'https://raw.githubusercontent.com/SoufianBk/OpenLayers_v2/master/src/PostGIS-trips.mvt'
                     }),
                     style: yourStyleFunction
                 }),
             ],
             view: new View({
-                center: [0, 0],
-                zoom: 2
+                center: [4.36, 50.82],
+                zoom: 1
             }),
             controls: []
         })
