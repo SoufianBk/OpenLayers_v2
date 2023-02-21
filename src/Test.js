@@ -51,9 +51,8 @@ function Test() {
                     declutter: true,
                     source: new VectorTileSource({
                         format: new MVT(),
-                        defaultDataProject: 'ESPG:4236',
-                        tilePixelRatio: 1,
-                        tileGrid: createXYZ({maxZoom: 13}),
+                        defaultDataProject: 'ESPG:3857',
+                        // tileGrid: createXYZ({maxZoom: 10}),
                         // url: 'https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token=pk.eyJ1Ijoid2F6eXN0YXRzIiwiYSI6ImNsZTVoc3E1ZTA5c3QzdnM0dGczbnl2NXgifQ.RdsCypYt4CqvhpIuhjaX4Q'
                         url: 'https://raw.githubusercontent.com/SoufianBk/OpenLayers_v2/master/src/PostGIS-trips.mvt'
                     }),
@@ -61,8 +60,8 @@ function Test() {
                 }),
             ],
             view: new View({
-                center: [4.36, 50.82],
-                zoom: 1
+                center: [4.36003021 , 50.834849879],
+                zoom: 10
             }),
             controls: []
         })
