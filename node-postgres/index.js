@@ -22,6 +22,16 @@ app.get('/', (req, res) => {
         })
 })
 
+app.get('/mvt', (req, res) => {
+    db.getTripsMVT()
+        .then(response => {
+            res.status(200).send(response.rows);
+        })
+        .catch(error => {
+            res.status(500).send(error);
+        })
+})
+
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
 })

@@ -1,29 +1,27 @@
 import React, {Component, useEffect, useRef, useState} from "react";
 import Map from "ol/Map";
+import {getVectorContext} from "ol/render";
 import View from "ol/View";
-import LayerTile from "ol/layer/Tile";
-import SourceOSM from "ol/source/OSM";
-import Vector from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
+import MVT from "ol/format/MVT";
+import MultiPoint from "ol/geom/MultiPoint";
+import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
+import SourceOSM from "ol/source/OSM";
+import VectorSource from "ol/source/Vector";
 import Style from "ol/style/Style";
 import Stroke from "ol/style/Stroke";
 import Circle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
-import VectorSource from "ol/source/Vector";
-import {getVectorContext} from "ol/render";
-import MultiPoint from "ol/geom/MultiPoint";
-import TileLayer from "ol/layer/Tile";
-import {Feature} from "ol";
 
-function MapJSONdb() {
+function MapMVT() {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [items, setItems] = useState([]);
     const [map, setMap] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:3001")
+        fetch("http://localhost:3001/mvt")
             .then(res => res.json())
             .then(
                 (result) => {
@@ -64,24 +62,19 @@ function MapJSONdb() {
         return <div ref={mapElement} className="map-container" style={{width: "100%", height: "1050px"}}></div>;
     } else {
         console.log("Ready")
-        let trip0 = items[0].asmfjson;
-        trip0.type = "LineString"
 
-        const ft = new GeoJSON().readFeature(trip0);
-        ft.set('timestamp', trip0.datetimes)
+        let trip0 = items[0].mvt;
+        console.log(trip0)
 
-        let vectorSource = new VectorSource();
-        vectorSource.addFeature(ft)
+        let vectorSource = new VectorSource({
+            features: new MVT().readFeatures(trip0),  // big JSON file
+        });
 
-        for (var i = 0; i < 500; i++) {
-            let trip = items[i].asmfjson;
-            trip.type = "LineString"
-
-            let ft = new GeoJSON().readFeature(trip);
-            ft.set('timestamp', trip.datetimes)
-
-            vectorSource.addFeature(ft)
-        }
+        // for (var i = 1; i < 10; i++) {
+        //     let trip = items[i].asmfjson;
+        //     vectorSource.addFeature(new MVT().readFeature(trip))
+        //     // console.log(trip)
+        // }
 
 
         let vectorLayer = new VectorLayer({
@@ -113,7 +106,6 @@ function MapJSONdb() {
             features = vectorSource.getFeatures();
             // console.log(features.length)
             var first = features[0]
-            // console.log(first.getKeys())
 
             let coordinates = [];
 
@@ -141,4 +133,4 @@ function MapJSONdb() {
 }
 
 
-export default MapJSONdb;
+export default MapMVT;
