@@ -20,15 +20,26 @@ function MapJSONdb() {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [items, setItems] = useState([]);
+    const [timestamps, setTimestamps] = useState([]);
     const [map, setMap] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:3001")
+        fetch("http://localhost:3001/json")
             .then(res => res.json())
             .then(
                 (result) => {
                     setIsLoaded(true);
                     setItems(result);
+                }
+            )
+    }, [])
+
+    useEffect(() => {
+        fetch("http://localhost:3001/json/ts")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    setTimestamps(result);
                 }
             )
     }, [])
@@ -64,25 +75,19 @@ function MapJSONdb() {
         return <div ref={mapElement} className="map-container" style={{width: "100%", height: "1050px"}}></div>;
     } else {
         console.log("Ready")
-        let trip0 = items[0].asmfjson;
-        trip0.type = "LineString"
-
-        const ft = new GeoJSON().readFeature(trip0);
-        ft.set('timestamp', trip0.datetimes)
-
         let vectorSource = new VectorSource();
-        vectorSource.addFeature(ft)
+        let test = items;
 
         for (var i = 0; i < 500; i++) {
             let trip = items[i].asmfjson;
             trip.type = "LineString"
-
+            let timestampsZ = trip.datetimes.map(element => (Math.round(toTimestamp(rectifyFormat(element)))));
             let ft = new GeoJSON().readFeature(trip);
-            ft.set('timestamp', trip.datetimes)
+            ft.set('timestamp', timestampsZ)
+            ft.set('currentCoord', 0)
 
             vectorSource.addFeature(ft)
         }
-
 
         let vectorLayer = new VectorLayer({
             source: vectorSource,
@@ -104,33 +109,39 @@ function MapJSONdb() {
         });
 
         let features
-        let tmp = 0
+        let j = 0
         let map2 = map
+        let tsMin = toTimestamp(timestamps[0].min)
+        let tsMax = toTimestamp(timestamps[0].max)
+        let nbTotTs = tsMax - tsMin
+        let currentTs = tsMin;
+        let currentCoord = 0;
         vectorLayer.on('postrender', function (event) {
             const vectorContext = getVectorContext(event);
-            tmp = tmp + 1
-
             features = vectorSource.getFeatures();
-            // console.log(features.length)
-            var first = features[0]
-            // console.log(first.getKeys())
-
             let coordinates = [];
 
+            currentTs = currentTs + 1;
             features.forEach((feature) => {
-                if (feature.getGeometry().getCoordinates().length > tmp) {
-                    coordinates.push(feature.getGeometry().getCoordinates()[tmp])
+                currentCoord = feature.get("currentCoord")
+                if (currentTs == feature.get("timestamp")[currentCoord]) {
+                    coordinates.push(feature.getGeometry().getCoordinates()[currentCoord])
+                    feature.set("currentCoord", currentCoord + 1)
+                } else {
+                    coordinates.push(feature.getGeometry().getCoordinates()[currentCoord])
                 }
             });
-
 
             vectorContext.setStyle(ptStyle);
             vectorContext.drawGeometry(new MultiPoint(coordinates));
 
-            if (tmp < 1200) {
+            j = j + 1
+            if (j < nbTotTs) {
                 map2.render()
+                console.log(new Date(currentTs * 1000))
+                console.log(currentTs)
             } else {
-                console.log(tmp)
+                console.log(currentTs)
             }
         });
 
@@ -140,5 +151,16 @@ function MapJSONdb() {
     }
 }
 
+const toTimestamp = (strDate) => {
+    const dt = Date.parse(strDate);
+    return dt / 1000;
+}
+
+function rectifyFormat(s) {
+    let b = s.split(/\D/);
+    return b[0] + '-' + b[1] + '-' + b[2] + 'T' +
+        b[3] + ':' + b[4] + ':' + b[5] + '.' +
+        b[6].substr(0, 3) + '+00:00';
+}
 
 export default MapJSONdb;

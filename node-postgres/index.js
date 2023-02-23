@@ -12,8 +12,18 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.get('/', (req, res) => {
+app.get('/json', (req, res) => {
     db.getTrips()
+        .then(response => {
+            res.status(200).send(response.rows);
+        })
+        .catch(error => {
+            res.status(500).send(error);
+        })
+})
+
+app.get('/json/ts', (req, res) => {
+    db.getTripsMinMaxTS()
         .then(response => {
             res.status(200).send(response.rows);
         })
