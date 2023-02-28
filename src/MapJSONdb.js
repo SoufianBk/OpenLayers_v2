@@ -77,8 +77,9 @@ function MapJSONdb() {
         console.log("Ready")
         let vectorSource = new VectorSource();
         let test = items;
+        console.log(test)
 
-        for (var i = 0; i < 500; i++) {
+        for (var i = 0; i < items.length; i++) {
             let trip = items[i].asmfjson;
             trip.type = "LineString"
             let timestampsZ = trip.datetimes.map(element => (Math.round(toTimestamp(rectifyFormat(element)))));
@@ -116,32 +117,44 @@ function MapJSONdb() {
         let nbTotTs = tsMax - tsMin
         let currentTs = tsMin;
         let currentCoord = 0;
+
         vectorLayer.on('postrender', function (event) {
-            const vectorContext = getVectorContext(event);
-            features = vectorSource.getFeatures();
-            let coordinates = [];
+            if(currentTs < tsMax) {
+                const vectorContext = getVectorContext(event);
+                features = vectorSource.getFeatures();
+                let coordinates = [];
 
-            currentTs = currentTs + 1;
-            features.forEach((feature) => {
-                currentCoord = feature.get("currentCoord")
-                if (currentTs == feature.get("timestamp")[currentCoord]) {
-                    coordinates.push(feature.getGeometry().getCoordinates()[currentCoord])
-                    feature.set("currentCoord", currentCoord + 1)
+                currentTs = currentTs + 60;
+                features.forEach((feature) => {
+                    currentCoord = feature.get("currentCoord")
+                    let tsTmp = feature.get("timestamp")[currentCoord]
+                    let currentTmp = feature.getGeometry().getCoordinates()[currentCoord]
+                    if(typeof currentTmp === 'undefined'){
+                        // coordinates.push(feature.getGeometry().getCoordinates()[currentCoord - 1])
+                    } else {
+                        if (currentTs > tsTmp) {
+                            coordinates.push(currentTmp)
+                            while(currentTs > tsTmp){
+                                currentCoord = currentCoord + 1;
+                                tsTmp = feature.get("timestamp")[currentCoord]
+                            }
+                            feature.set("currentCoord", currentCoord)
+                        } else {
+                            coordinates.push(currentTmp)
+                        }
+                    }
+                });
+
+                vectorContext.setStyle(ptStyle);
+                vectorContext.drawGeometry(new MultiPoint(coordinates));
+
+                j = j + 60
+                if (j - 120 < nbTotTs) {
+                    map2.render()
+                    console.log(new Date(currentTs * 1000))
                 } else {
-                    coordinates.push(feature.getGeometry().getCoordinates()[currentCoord])
+
                 }
-            });
-
-            vectorContext.setStyle(ptStyle);
-            vectorContext.drawGeometry(new MultiPoint(coordinates));
-
-            j = j + 1
-            if (j < nbTotTs) {
-                map2.render()
-                console.log(new Date(currentTs * 1000))
-                console.log(currentTs)
-            } else {
-                console.log(currentTs)
             }
         });
 
