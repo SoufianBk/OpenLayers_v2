@@ -2,11 +2,12 @@ import React from "react";
 import './App.css';
 import MyMap from "./MyMap";
 import MapJSONdb from "./MapJSONdb";
-import MapMVT from "./MapMVT";
-import Test from "./Test"
-import Test2 from "./Test2"
+import MapMVT from "./Test";
+import MapMVT from "./MapMVT"
+import Test2 from "./MapComponent"
 import Geo from "./Geo";
 import 'ol/ol.css';
+import MapComponent from "./MapComponent";
 
 class App extends React.Component {
 
@@ -23,11 +24,10 @@ class App extends React.Component {
             <div>
                 <Geo></Geo>
                 {/*<MyMap></MyMap>*/}
-                <MapJSONdb></MapJSONdb>
+                {/*<MapJSONdb></MapJSONdb>*/}
                 {/*<MapMVT></MapMVT>*/}
-                {/*<Test></Test>*/}
+                <MapMVT></MapMVT>
             </div>
-
         );
     }
 }

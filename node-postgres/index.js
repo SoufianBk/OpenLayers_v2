@@ -42,6 +42,16 @@ app.get('/mvt', (req, res) => {
         })
 })
 
+app.get('/mvt/ts', (req, res) => {
+    db.getTripsMixMaxTsMVT()
+        .then(response => {
+            res.status(200).send(response.rows);
+        })
+        .catch(error => {
+            res.status(500).send(error);
+        })
+})
+
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
 })

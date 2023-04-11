@@ -15,6 +15,7 @@ import {getVectorContext} from "ol/render";
 import MultiPoint from "ol/geom/MultiPoint";
 import TileLayer from "ol/layer/Tile";
 import {Feature} from "ol";
+import TimeSlider from "./TimeSlider"
 
 function MapJSONdb() {
     const [error, setError] = useState(null);
@@ -77,7 +78,6 @@ function MapJSONdb() {
         console.log("Ready")
         let vectorSource = new VectorSource();
         let test = items;
-        console.log(test)
 
         for (var i = 0; i < items.length; i++) {
             let trip = items[i].asmfjson;
@@ -144,7 +144,6 @@ function MapJSONdb() {
                         }
                     }
                 });
-
                 vectorContext.setStyle(ptStyle);
                 vectorContext.drawGeometry(new MultiPoint(coordinates));
 
@@ -152,14 +151,14 @@ function MapJSONdb() {
                 if (j - 120 < nbTotTs) {
                     map2.render()
                     console.log(new Date(currentTs * 1000))
-                } else {
-
                 }
             }
         });
 
         return (
-            <div ref={mapElement} className="map-container" style={{width: "100%", height: "1050px"}}></div>
+            <div ref={mapElement} className="map-container" style={{width: "100%", height: "1050px"}}>
+                <div style={{top: "100px"}}> <TimeSlider></TimeSlider></div>
+            </div>
         );
     }
 }
