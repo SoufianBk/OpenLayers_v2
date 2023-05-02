@@ -109,12 +109,13 @@ function MapMVT() {
                 featureClass: Feature,
             }),
             tileGrid: tileGrid,
-            url: 'http://localhost:7800/public.tripsl/{z}/{x}/{y}.pbf?limit=1'
+            // url: 'http://localhost:7800/public.trips/{z}/{x}/{y}.pbf?filter=mmsi%20%3C%20235485000'
+            url: 'http://localhost:7800/public.tripsfct/{z}/{x}/{y}.pbf'
         })
 
         const vectorTileLayer = new VectorTileLayer({
             source: vectorTileSource,
-            style: lineStyle
+            style: null
         });
 
         let vectorSource = new VectorSource();
@@ -138,58 +139,55 @@ function MapMVT() {
 
 
         var listenerKey = vectorTileSource.on('tileloadend', function (evt) {
-            // var tileCoord = evt.tile.getTileCoord();
-            // console.log('Tile loaded:', tileCoord);
             count++
-            console.log(count)
+            // console.log(count)
 
             let features = evt.tile.getFeatures();
             features.forEach((feature) => {
                 if (!(typeof feature === "undefined")) {
-                    let mmsi = feature.getProperties().mmsi
-                    const geometry = feature.getGeometry();
-                    if (geometry !== null) {
-                        var tmpCoords = []
-                        geometry.getCoordinates().forEach((coord) => {
-                            if (coord.length == 2) {
-                                tmpCoords.push(coord)
-                            } else {
-                                coord.forEach((subCoord) => {
-                                    if (subCoord.length == 2) {
-                                        tmpCoords.push(subCoord)
-                                    }
-                                })
-                            }
-                        })
-                    }
-                    let line = new LineString(tmpCoords)
-                    line.transform('EPSG:3857', 'EPSG:4326');
+                    if (feature.getGeometry() !== null) {
+                        let featureType = feature.getGeometry().getType()
+                        let mmsi = feature.getProperties().mmsi
+                        let t = feature.getProperties().times
+                        t = t.replace(/\"/g, "");
+                        t = t.slice(1, -1)
+                        t = t.split(",")
+                        t = t.map(toTimestamp)
 
-                    // console.log(line.getCoordinates())
+                        let line
 
-                    let t = feature.getProperties().t
-                    t = t.replace(/\"/g, "");
-                    t = t.slice(1, -1)
-                    t = t.split(",")
-
-                    const geoMarker = new Feature({
-                        geometry: new LineString(line.getCoordinates()),
-                    });
-
-                    geoMarker.set('mmsi', mmsi)
-                    geoMarker.set('t', t)
-
-                    let vsFeatures = vectorSource.getFeatures()
-                    let isAlreadyIn = false
-                    vsFeatures.forEach((vFeature) => {
-                        isAlreadyIn = vFeature.get('mmsi') === mmsi || isAlreadyIn
-                        if (vFeature.get('mmsi') === mmsi) {
-                            let coords = vFeature.getGeometry().getCoordinates()
-                            vFeature.getGeometry().setCoordinates(coords.concat(line.getCoordinates()))
+                        if (featureType === "MultiLineString"){
+                            let tmpCoords = [].concat.apply([], feature.getGeometry().getCoordinates());
+                            line =  new LineString(tmpCoords)
+                        } else{
+                            line = new LineString(feature.getGeometry().getCoordinates())
                         }
-                    });
-                    if (!isAlreadyIn) {
-                        vectorSource.addFeature(geoMarker)
+                        line.transform('EPSG:3857', 'EPSG:4326');
+
+                        const geoMarker = new Feature({
+                            geometry: new LineString(line.getCoordinates()),
+                        });
+
+                        geoMarker.set('mmsi', mmsi)
+                        geoMarker.set('t', t)
+
+                        let vsFeatures = vectorSource.getFeatures()
+                        let isAlreadyIn = false
+                        vsFeatures.forEach((vFeature) => {
+                            isAlreadyIn = vFeature.get('mmsi') === mmsi || isAlreadyIn
+                            if (vFeature.get('mmsi') === mmsi) {
+                                let vCoords = vFeature.getGeometry().getCoordinates()
+                                vFeature.getGeometry().setCoordinates(vCoords.concat(line.getCoordinates()))
+
+                                let vTs = vFeature.get("t")
+                                vTs.concat(t)
+                                vFeature.set("t", vTs)
+                            }
+                        });
+                        if (!isAlreadyIn) {
+                            geoMarker.set("currentCoord", 0)
+                            vectorSource.addFeature(geoMarker)
+                        }
                     }
                 }
             });
@@ -201,24 +199,33 @@ function MapMVT() {
         let nbTotTs = tsMax - tsMin
         let currentTs = tsMin;
         let currentCoord = 0;
+        let j = 0
 
         vectorLayer.on('postrender', function (event) {
-            if(currentTs < tsMax) {
+            if (currentTs < tsMax) {
                 if (count === 30 || count === 40) {
                     unByKey(listenerKey)
                     const vectorContext = getVectorContext(event);
                     let features = vectorSource.getFeatures();
-                    // console.log(features[0].getGeometry().getCoordinates())
                     let coordinates = [];
+
+                    currentTs = currentTs + 60;
+                    console.log(features.length)
                     features.forEach((feature) => {
                         if (!(typeof feature.getGeometry() === "undefined")) {
-                            let currentTmp = feature.getGeometry().getCoordinates()[tmp]
+                            currentCoord = feature.get("currentCoord")
+                            let tsTmp = feature.get("t")[currentCoord]
+                            let currentTmp = feature.getGeometry().getCoordinates()[currentCoord]
                             if (!(typeof currentTmp === "undefined")) {
-                                if (currentTmp.length == 2) {
+                                if (currentTs > tsTmp) {
                                     coordinates.push(currentTmp)
-                                    console.log("----------------")
-                                    console.log(feature.getGeometry().getCoordinates().length)
-                                    console.log(feature.get("t").length)
+                                    while (currentTs > tsTmp) {
+                                        currentCoord = currentCoord + 1;
+                                        tsTmp = feature.get("t")[currentCoord]
+                                    }
+                                    feature.set("currentCoord", currentCoord)
+                                } else {
+                                    coordinates.push(currentTmp)
                                 }
                             }
                         }
@@ -229,9 +236,10 @@ function MapMVT() {
                         vectorContext.drawGeometry(new MultiPoint(coordinates));
                     }
 
-                    if (tmp < 502) {
+                    j = j + 60
+                    if (j - 120 < nbTotTs) {
                         map2.render()
-                        tmp = tmp + 1
+                        // console.log(new Date(currentTs * 1000))
                     }
                 }
             }
