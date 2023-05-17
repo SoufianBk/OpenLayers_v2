@@ -17,6 +17,7 @@ import TileLayer from "ol/layer/Tile";
 import {Feature} from "ol";
 import TimeSlider from "./TimeSlider/TimeSlider"
 import {Control} from "ol/control";
+import Stats from 'stats.js'
 
 function MapJSONdb() {
     const [error, setError] = useState(null);
@@ -71,6 +72,10 @@ function MapJSONdb() {
     }, [])
 
     var interval;
+    var play = true;
+    let map2 = map
+    var currentTs = 0
+    var goingBack = false;
 
     class Slider extends Control {
         constructor(min, max) {
@@ -90,8 +95,15 @@ function MapJSONdb() {
             slider.type = "range"
             slider.min = min
             slider.max = max
-            slider.oninput = function (){
+            slider.oninput = function () {
                 ts.innerHTML = new Date(this.value * 1000)
+
+                if (currentTs < parseInt(this.value)) {
+                    goingBack = true;
+                }
+
+                currentTs = parseInt(this.value)
+                map2.render()
             }
 
             const element = document.createElement('div');
@@ -109,51 +121,53 @@ function MapJSONdb() {
             stopBtn.addEventListener('click', this.handleStopBtn.bind(this), false);
         }
 
-        myTimer(){
+        myTimer() {
             let slider = document.getElementById("timeSlider")
             let tmp = parseInt(slider.value) + 60;
-            if(tmp <= slider.max){
+            if (tmp <= slider.max) {
                 slider.value = tmp
                 let ts = document.getElementById("tsText")
                 ts.innerHTML = new Date(tmp * 1000)
             }
         }
 
-        handlePlayBtn(){
-            interval = setInterval(this.myTimer, 10)
+        handlePlayBtn() {
+            play = true
+            map2.render()
             this.disablePlayBtn()
             this.enableStopBtn()
             console.log("PLAY")
         }
 
-        handleStopBtn(){
-            clearInterval(interval)
+        handleStopBtn() {
+            // clearInterval(interval)
+            play = false
             this.enablePlayBtn()
             this.disableStopBtn()
             console.log("STOP")
         }
 
-        disablePlayBtn(){
+        disablePlayBtn() {
             let btn = document.getElementById("playBtn")
             btn.disabled = true
         }
 
-        enablePlayBtn(){
+        enablePlayBtn() {
             let btn = document.getElementById("playBtn")
             btn.disabled = false
         }
 
-        disableStopBtn(){
+        disableStopBtn() {
             let btn = document.getElementById("stopBtn")
             btn.disabled = false
         }
-        enableStopBtn(){
+
+        enableStopBtn() {
             let btn = document.getElementById("stopBtn")
             btn.disabled = false
         }
 
     }
-
 
     if (!isLoaded) {
         console.log("Loading ...")
@@ -164,7 +178,7 @@ function MapJSONdb() {
         let test = items;
         console.log(items.length)
 
-        for (var i = 0; i < 100  /* items.length*/ ; i++) {
+        for (var i = 0; i < 100  /* items.length*/; i++) {
             let trip = items[i].asmfjson;
             trip.type = "LineString"
             let timestampsZ = trip.datetimes.map(element => (Math.round(toTimestamp(rectifyFormat(element)))));
@@ -201,43 +215,66 @@ function MapJSONdb() {
 
         let features
         let j = 0
-        let map2 = map
         let nbTotTs = tsMax - tsMin
-        let currentTs = tsMin;
-
+        currentTs = tsMin;
         let currentCoord = 0;
-        vectorLayer.on('postrender', function (event) {
-            if (currentTs < tsMax) {
-                const vectorContext = getVectorContext(event);
-                features = vectorSource.getFeatures();
-                let coordinates = [];
+        let coordinates = [];
 
-                currentTs = currentTs + 60;
-                features.forEach((feature) => {
-                    currentCoord = feature.get("currentCoord")
-                    let tsTmp = feature.get("timestamp")[currentCoord]
-                    let currentTmp = feature.getGeometry().getCoordinates()[currentCoord]
-                    if (typeof currentTmp === 'undefined') {
-                        // coordinates.push(feature.getGeometry().getCoordinates()[currentCoord - 1])
-                    } else {
-                        if (currentTs > tsTmp) {
-                            coordinates.push(currentTmp)
-                            while (currentTs > tsTmp) {
-                                currentCoord = currentCoord + 1;
-                                tsTmp = feature.get("timestamp")[currentCoord]
-                            }
+        vectorLayer.on('postrender', function (event) {
+            const vectorContext = getVectorContext(event);
+            features = vectorSource.getFeatures();
+            if (currentTs < tsMax) {
+                if (play) {
+                    coordinates = [];
+
+                    currentTs = currentTs + 60;
+                    features.forEach((feature) => {
+                        feature.set("currentCoord", 0)
+                        currentCoord = 0
+                        let tsTmp = feature.get("timestamp")[currentCoord]
+                        let currentTmp = null
+                        while (currentTs > tsTmp) {
+                            currentCoord = currentCoord + 1;
+                            tsTmp = feature.get("timestamp")[currentCoord]
+                        }
+                        currentTmp = feature.getGeometry().getCoordinates()[currentCoord]
+                        if (!(typeof currentTmp === 'undefined')) {
                             feature.set("currentCoord", currentCoord)
-                        } else {
                             coordinates.push(currentTmp)
                         }
-                    }
-                });
-                vectorContext.setStyle(ptStyle);
-                vectorContext.drawGeometry(new MultiPoint(coordinates));
+                    });
+                    vectorContext.setStyle(ptStyle);
+                    vectorContext.drawGeometry(new MultiPoint(coordinates));
 
-                j = j + 60
-                if (j - 120 < nbTotTs) {
-                    map2.render()
+                    if (j - 120 < nbTotTs) {
+                        j = j + 60
+                        map2.render()
+                        let slider = document.getElementById("timeSlider")
+                        slider.value = currentTs
+                        let ts = document.getElementById("tsText")
+                        ts.innerHTML = new Date(currentTs * 1000)
+                    }
+                } else {
+                    coordinates = [];
+
+                    features.forEach((feature) => {
+                        feature.set("currentCoord", 0)
+                        currentCoord = 0
+                        let tsTmp = feature.get("timestamp")[currentCoord]
+                        let currentTmp = feature.getGeometry().getCoordinates()[currentCoord]
+                        while (currentTs > tsTmp) {
+                            currentCoord = currentCoord + 1;
+                            tsTmp = feature.get("timestamp")[currentCoord]
+                        }
+                        currentTmp = feature.getGeometry().getCoordinates()[currentCoord]
+                        if (!(typeof currentTmp === 'undefined')) {
+                            feature.set("currentCoord", currentCoord)
+                            coordinates.push(currentTmp)
+                        }
+                    });
+
+                    vectorContext.setStyle(ptStyle);
+                    vectorContext.drawGeometry(new MultiPoint(coordinates));
                 }
             }
         });

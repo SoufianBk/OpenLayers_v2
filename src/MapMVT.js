@@ -30,7 +30,7 @@ function MapMVT() {
 
     const lineStyle = new Style({
         stroke: new Stroke({
-            color: '#00308F',
+            color: '#00608F',
             width: 2,
         }),
     })
@@ -130,7 +130,7 @@ function MapMVT() {
         })
 
         map.addLayer(vectorTileLayer)
-        map.addLayer(tileDebug);
+        // map.addLayer(tileDebug);
         map.addLayer(vectorLayer);
 
         let map2 = map
@@ -152,7 +152,7 @@ function MapMVT() {
                         t = t.replace(/\"/g, "");
                         t = t.slice(1, -1)
                         t = t.split(",")
-                        t = t.map(toTimestamp)
+                        // t = t.map(toTimestamp)
 
                         let line
 
@@ -210,7 +210,7 @@ function MapMVT() {
                     let coordinates = [];
 
                     currentTs = currentTs + 60;
-                    console.log(features.length)
+                    // console.log(features.length)
                     features.forEach((feature) => {
                         if (!(typeof feature.getGeometry() === "undefined")) {
                             currentCoord = feature.get("currentCoord")

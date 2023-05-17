@@ -3,9 +3,10 @@ import './App.css';
 import MyMap from "./MyMap";
 import MapJSONdb from "./MapJSONdb";
 import MapMVT from "./MapMVT"
-import Test2 from "./MapComponent"
 import Geo from "./Geo";
 import 'ol/ol.css';
+import FPSStats from "react-fps-stats";
+
 
 class App extends React.Component {
 
@@ -22,8 +23,9 @@ class App extends React.Component {
             <div>
                 <Geo></Geo>
                 {/*<MyMap></MyMap>*/}
-                <MapJSONdb></MapJSONdb>
-                {/*<MapMVT></MapMVT>*/}
+                {/*<MapJSONdb></MapJSONdb>*/}
+                <MapMVT></MapMVT>
+                <FPSStats />
             </div>
         );
     }
