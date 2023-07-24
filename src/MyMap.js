@@ -31,13 +31,12 @@ class PublicMap extends Component {
                 zoom: this.state.zoom
             })
         });
-
-        this.getData();
+        var startTime = performance.now()
+        this.getData(startTime);
         this.map.render();
     }
 
-
-    getData() {
+    getData(startTime) {
         var file = 'https://raw.githubusercontent.com/SoufianBk/MobilityDB-OL/main/trips.json';
 
         var SRC_bigJSON = new Vector({
@@ -63,16 +62,21 @@ class PublicMap extends Component {
             }),
         });
 
-        this.bigJSONPostRender(bigJSON, ptStyle, SRC_bigJSON)
+        this.bigJSONPostRender(bigJSON, ptStyle, SRC_bigJSON,startTime)
     }
 
-    bigJSONPostRender(bigJSON, ptStyle, SRC_bigJSON) {
+    bigJSONPostRender(bigJSON, ptStyle, SRC_bigJSON, startTime) {
         var features
         var tmp = 0
         var map2 = this.map
         bigJSON.on('postrender', function (event) {
             const vectorContext = getVectorContext(event);
             tmp = tmp + 1
+
+            if(tmp == 1){
+                var endTime = performance.now()
+                console.log(`JSON Loading took ${endTime - startTime} milliseconds`)
+            }
 
             features = SRC_bigJSON.getFeatures();
             var first = features[1200]

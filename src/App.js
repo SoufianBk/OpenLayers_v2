@@ -6,6 +6,7 @@ import MapMVT from "./MapMVT"
 import Geo from "./Geo";
 import 'ol/ol.css';
 import FPSStats from "react-fps-stats";
+import MapWKB from "./MapWKB";
 
 
 class App extends React.Component {
@@ -22,9 +23,8 @@ class App extends React.Component {
         return (
             <div>
                 <Geo></Geo>
-                {/*<MyMap></MyMap>*/}
-                {/*<MapJSONdb></MapJSONdb>*/}
-                <MapMVT></MapMVT>
+                <MapJSONdb></MapJSONdb>
+                {/*<MapMVT></MapMVT>*/}
                 <FPSStats />
             </div>
         );

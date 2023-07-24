@@ -9,7 +9,9 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
+    "flatpickr": "^4.6.13",
     "ol": "^7.1.0",
     "ol-ext": "^4.0.6",
     "openlayers": "^4.6.5",
@@ -19,6 +21,7 @@
     "react-fps-stats": "^0.3.1",
     "react-instantsearch-dom": "^6.40.0",
     "react-scripts": "5.0.1",
+    "react-time-picker": "^6.2.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

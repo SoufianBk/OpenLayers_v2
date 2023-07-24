@@ -15,9 +15,31 @@ import {getVectorContext} from "ol/render";
 import MultiPoint from "ol/geom/MultiPoint";
 import TileLayer from "ol/layer/Tile";
 import {Feature} from "ol";
-import TimeSlider from "./TimeSlider/TimeSlider"
 import {Control} from "ol/control";
-import Stats from 'stats.js'
+import styles from './style.css';
+import TimePicker from "react-time-picker";
+import * as PropTypes from "prop-types";
+import ReactDOM from "react-dom";
+
+const TimePickerControl = ({ initialValue, onTimeChange }) => {
+    const [time, setTime] = useState(initialValue);
+
+    const handleTimeChange = (selectedTime) => {
+        setTime(selectedTime);
+        onTimeChange(selectedTime);
+    };
+
+    return (
+        <div>
+            <TimePicker value={time} onChange={handleTimeChange} clearIcon={null} />
+        </div>
+    );
+};
+
+TimePickerControl.propTypes = {
+    initialValue: PropTypes.string,
+    onTimeChange: PropTypes.any
+};
 
 function MapJSONdb() {
     const [error, setError] = useState(null);
@@ -61,8 +83,11 @@ function MapJSONdb() {
                 }),
             ],
             view: new View({
+                // center: [-73.949997, 40.650002],
+                // center: [4.352551, 50.844311],
                 center: [12, 55],
                 zoom: 6
+                // zoom: 12
             }),
             controls: []
         })
@@ -71,54 +96,120 @@ function MapJSONdb() {
 
     }, [])
 
-    var interval;
     var play = true;
     let map2 = map
     var currentTs = 0
-    var goingBack = false;
 
     class Slider extends Control {
         constructor(min, max) {
+            const date = document.createElement('div')
+            date.id = "dateText"
+            date.innerHTML = new Date(min * 1000).toLocaleDateString();
+            date.style.fontWeight = 'normal'
+
             const ts = document.createElement('div')
             ts.id = "tsText"
-            ts.innerHTML = new Date(min * 1000)
+            ts.innerHTML = new Date(min * 1000).toLocaleTimeString();
 
-            const playBtn = document.createElement('button')
-            playBtn.id = "playBtn"
-            playBtn.innerHTML = "P"
-            const stopBtn = document.createElement('button')
-            stopBtn.id = "stopBtn"
-            stopBtn.innerHTML = "S"
+            const rangeContainer = document.createElement('div');
+            rangeContainer.style.display = 'flex';
+            rangeContainer.style.width = "95%";
+
+            const fromTxt = document.createElement('div')
+            fromTxt.innerHTML = "From : "
+
+            const minDropdown = document.createElement('select');
+            minDropdown.id = "timestampDropdown";
+
+            // Populate the dropdown with timestamps from the range
+            for (let i = min; i <= max; i = i + 600) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = new Date(i * 1000).toLocaleString();
+                minDropdown.appendChild(option);
+            }
+
+            const toTxt = document.createElement('div')
+            toTxt.innerHTML = "  To : "
+
+            const maxDropdown = document.createElement('select');
+            maxDropdown.id = "timestampDropdown";
+
+            // Populate the dropdown with timestamps from the range
+            for (let i = min; i <= max; i = i + 600) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = new Date(i * 1000).toLocaleString();
+                option.selected = "selected"
+                maxDropdown.appendChild(option);
+            }
+
+            const refresh = document.createElement('button')
+            refresh.id = "refresh"
+            refresh.innerHTML = "Refresh"
+            refresh.style.width = "70px"
+            // refresh.style.color = "white";
+            // refresh.style.backgroundColor = "#A0A0A0";
+
+            rangeContainer.appendChild(fromTxt);
+            rangeContainer.appendChild(minDropdown);
+            rangeContainer.appendChild(toTxt);
+            rangeContainer.appendChild(maxDropdown);
+            rangeContainer.appendChild(refresh)
+
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.width = "95%";
+
+            const playStopBtn = document.createElement('button')
+            playStopBtn.id = "playStopBtn"
+            playStopBtn.innerHTML = "S"
+            playStopBtn.style.color = "white";
+            playStopBtn.style.backgroundColor = "#A0A0A0";
 
             const slider = document.createElement('input');
+            slider.style.color = "red";
+            slider.style.flexGrow = 1;
             slider.id = "timeSlider"
             slider.type = "range"
             slider.min = min
             slider.max = max
             slider.oninput = function () {
-                ts.innerHTML = new Date(this.value * 1000)
-
-                if (currentTs < parseInt(this.value)) {
-                    goingBack = true;
-                }
-
+                date.innerHTML = new Date(this.value * 1000).toLocaleDateString();
+                ts.innerHTML = new Date(this.value * 1000).toLocaleTimeString();
                 currentTs = parseInt(this.value)
                 map2.render()
             }
 
+            container.appendChild(playStopBtn);
+            container.appendChild(slider);
+
             const element = document.createElement('div');
+            element.style.backgroundColor = '#606060';
+            element.style.color = 'white';
+            element.style.fontWeight = 'bold';
+            element.style.position = 'absolute';
+            element.style.left = '50%';
+            element.style.bottom = '100px';
+            element.style.transform = 'translateX(-50%)';
+            element.style.display = 'flex';
+            element.style.flexDirection = 'column';
+            element.style.alignItems = "center";
+            element.style.width = "500px";
+            element.style.height = "100px";
+
             element.className = 'ol-unselectable ol-control';
+            element.appendChild(date);
             element.appendChild(ts);
-            element.appendChild(playBtn);
-            element.appendChild(stopBtn);
-            element.appendChild(slider);
+            element.appendChild(rangeContainer);
+            element.appendChild(container);
 
             super({
                 element: element,
             });
 
-            playBtn.addEventListener('click', this.handlePlayBtn.bind(this), false);
-            stopBtn.addEventListener('click', this.handleStopBtn.bind(this), false);
+            playStopBtn.addEventListener('click', this.handlePlayStopBtn.bind(this), false);
+            refresh.addEventListener('click', this.refreshBtn.bind(this), false);
         }
 
         myTimer() {
@@ -127,47 +218,32 @@ function MapJSONdb() {
             if (tmp <= slider.max) {
                 slider.value = tmp
                 let ts = document.getElementById("tsText")
-                ts.innerHTML = new Date(tmp * 1000)
+                ts.innerHTML = new Date(tmp * 1000).toLocaleTimeString();
+                let date = document.getElementById("dateText")
+                date.innerHTML = new Date(tmp * 1000).toLocaleDateString();
             }
         }
 
-        handlePlayBtn() {
-            play = true
-            map2.render()
-            this.disablePlayBtn()
-            this.enableStopBtn()
-            console.log("PLAY")
+        handlePlayStopBtn() {
+            let playStopBtn = document.getElementById("playStopBtn")
+            if(play){
+                play = false
+                playStopBtn.innerHTML = "P"
+                console.log("STOP")
+            } else {
+                play = true
+                playStopBtn.innerHTML = "S"
+                map2.render()
+                console.log("PLAY")
+            }
         }
 
-        handleStopBtn() {
-            // clearInterval(interval)
-            play = false
-            this.enablePlayBtn()
-            this.disableStopBtn()
-            console.log("STOP")
+        refreshBtn() {
+            window.location.reload();
         }
-
-        disablePlayBtn() {
-            let btn = document.getElementById("playBtn")
-            btn.disabled = true
-        }
-
-        enablePlayBtn() {
-            let btn = document.getElementById("playBtn")
-            btn.disabled = false
-        }
-
-        disableStopBtn() {
-            let btn = document.getElementById("stopBtn")
-            btn.disabled = false
-        }
-
-        enableStopBtn() {
-            let btn = document.getElementById("stopBtn")
-            btn.disabled = false
-        }
-
     }
+
+    var startTime = performance.now()
 
     if (!isLoaded) {
         console.log("Loading ...")
@@ -175,10 +251,14 @@ function MapJSONdb() {
     } else {
         console.log("Ready")
         let vectorSource = new VectorSource();
-        let test = items;
         console.log(items.length)
 
-        for (var i = 0; i < 100  /* items.length*/; i++) {
+        map.on("loadend", function (evt){
+            var mid = performance.now()
+            console.log(`Load end  ${mid - startTime} milliseconds`)
+        })
+
+        for (var i = 0; i < 1000 /* items.length*/ ; i++) {
             let trip = items[i].asmfjson;
             trip.type = "LineString"
             let timestampsZ = trip.datetimes.map(element => (Math.round(toTimestamp(rectifyFormat(element)))));
@@ -215,12 +295,16 @@ function MapJSONdb() {
 
         let features
         let j = 0
+        let cpt = 0
         let nbTotTs = tsMax - tsMin
         currentTs = tsMin;
         let currentCoord = 0;
         let coordinates = [];
+        var renderStartTime = performance.now()
+        let cpt2 = 0
 
         vectorLayer.on('postrender', function (event) {
+            cpt2++
             const vectorContext = getVectorContext(event);
             features = vectorSource.getFeatures();
             if (currentTs < tsMax) {
@@ -252,7 +336,9 @@ function MapJSONdb() {
                         let slider = document.getElementById("timeSlider")
                         slider.value = currentTs
                         let ts = document.getElementById("tsText")
-                        ts.innerHTML = new Date(currentTs * 1000)
+                        ts.innerHTML = new Date(currentTs * 1000).toLocaleTimeString()
+                        let date = document.getElementById("dateText")
+                        date.innerHTML = new Date(currentTs * 1000).toLocaleDateString()
                     }
                 } else {
                     coordinates = [];
@@ -276,6 +362,12 @@ function MapJSONdb() {
                     vectorContext.setStyle(ptStyle);
                     vectorContext.drawGeometry(new MultiPoint(coordinates));
                 }
+                cpt = cpt + 1
+
+            } else {
+                console.log(cpt2)
+                var renderEndTime = performance.now()
+                console.log(`Render time : ${renderEndTime - renderStartTime} milliseconds.`)
             }
         });
 
@@ -283,8 +375,6 @@ function MapJSONdb() {
             <div ref={mapElement} className="map-container" style={{width: "100%", height: "1050px"}}/>
         );
     }
-
-    // console.log(items)
 }
 
 const toTimestamp = (strDate) => {
