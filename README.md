@@ -31,7 +31,7 @@ however it is necessary to edit the query in `dbqueries.js` to match the name of
 
 The database credentials are described in `dbqueries.js` and they are set to the default values. If you have changed them please edit them to match your credentials.
 
-#Vector tiles visualization
+# Vector tiles visualization
 To display vector data, pg_tileserv is used in this project. To install it, please follow the instructions
 described in the [pg_tileserv installation tutorial](https://access.crunchydata.com/documentation/pg_tileserv/latest/installation/).  It is not mandatory to install and use pg_tileserv because another solution has been implemented and requires no installation.
 
@@ -56,7 +56,12 @@ To run with the implemenation using MFJSON data, set the `isJSON` variable to tr
 To run with the implemenation using vector tiles, set the `isJSON` variable to false \
 The `isJSON` variable can be found inside `App.js` line 8
 
-#Overview
-###Danish AIS:
+# Overview
+### Danish AIS:
 
-###New York GTFS:
+https://github.com/SoufianBk/OpenLayers_v2/assets/75175261/4fab054f-0c04-46d9-a358-61be3c3402f8
+
+### New York GTFS:
+
+https://github.com/SoufianBk/OpenLayers_v2/assets/75175261/6e7da17f-3909-431c-83bc-1b210550ae48
+
