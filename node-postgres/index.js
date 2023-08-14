@@ -6,7 +6,7 @@ const port = 3001
 const db = require('./dbqueries')
 
 const corsOptions = {
-    origin: 'http://localhost:3001', // Remplacez par le domaine de votre application OpenLayers
+    origin: 'localhost:3001/', // Remplacez par le domaine de votre application OpenLayers
     methods: ['GET'], // Spécifiez les méthodes HTTP autorisées
 };
 app.use(cors(corsOptions));
@@ -58,28 +58,6 @@ app.get('/json/ny/ts', (req, res) => {
             res.status(500).send(error);
         })
 })
-
-app.get('/mvt', (req, res) => {
-    db.getTripsMVT()
-        .then(response => {
-            res.status(200).send(response.rows);
-        })
-        .catch(error => {
-            res.status(500).send(error);
-        })
-})
-
-app.get('/mvt/ts', (req, res) => {
-    db.getTripsMixMaxTsMVT()
-        .then(response => {
-            res.status(200).send(response.rows);
-        })
-        .catch(error => {
-            res.status(500).send(error);
-        })
-})
-
-app.get('/wkb', db.getTripsWKB)
 
 app.get('/tiles/:z/:x/:y', db.getTiles)
 

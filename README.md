@@ -1,1 +1,60 @@
-# In construction
+# MobilityDB-OpenLayers
+This projects contains the code of a spatiotemporal data visualization using a MobilityDB database in combination with the OpenLayers library.
+
+This work is the result of the research for the master thesis *Visualization of Mobility Data on OpenLayers* that can be found [here](Visualization%20of%20Mobility%20Data%20on%20OpenLayers.pdf).
+
+# Requirements
+- npm version 6.14.13
+- MobilityDB 1.1
+
+# Datasets used
+Two different datasets have been used in this project:
+1. Danish AIS data imported into MobilityDB as described in the [workshop](https://www.mobilitydb.com/tutorials.html)
+2. Static GTFS data of New York as described in the [work](https://github.com/MobilityDB/MobilityDB-PublicTransport/tree/master) of a Ilias El Achouchi
+
+More details are described in the [thesis](Visualization%20of%20Mobility%20Data%20on%20OpenLayers.pdf)
+
+# API endpoints
+Once the data has been imported into the MobilityDB database, a table `Ships` is created for the Danish AIS and a table 
+`trips_mdb` for New York's GTFS both containing an identifier combined with a `tgeompoint`. The API executes SQL queries into these tables to access the information.
+
+Here is a list of all the endpoints created by the API:
+
+| Endpoint                      | Description |
+| -----------                   | ----------- |
+| **/json**                     | Returns MFJSON data       |
+| **/json/ts**                  | Returns the max and min timestamp  |
+| **/tiles/{z}/{x}/{y}**        | Returns the tile `x`,` y`at zoom level `z`  |
+
+As long as there is a table inside the databse with an identifier named `id` and a `tgeompoint` it should be possible to display data, 
+however it is necessary to edit the query in `dbqueries.js` to match the name of the table in the databse.
+
+#Vector tiles visualization
+To display vector data, pg_tileserv is used in this project. To install it, please follow the instructions
+described in the [pg_tileserv installation tutorial](https://access.crunchydata.com/documentation/pg_tileserv/latest/installation/).  It is not mandatory to install and use pg_tileserv because another solution has been implemented and requires no installation.
+
+In order to switch between implementations, set the `usePgtileserv` variable in the `MapMVT.js` at line 22 to true for using the pg_tileserv solution or false otherwise.
+
+For both implementations it is imperative to run the function in `mvt/tripsfct.sql`. 
+If you are using another dataset, please edit this function to match your database.
+
+More details are described in the [thesis](Visualization%20of%20Mobility%20Data%20on%20OpenLayers.pdf)
+
+
+# Build & Tutorial
+In order to reproduce this visualization you need to :
+1. ```https://github.com/SoufianBk/MobilityDB-OL.git```
+2. Execute in the working directory : ```npm install```
+3. Run the script that starts the API first by executing: ```npm run startAPI```
+4. To start the application, run the build script and THEN the execution script : ```npm run build``` and THEN ```npm run start```<br/>
+5. Finally to get the result, open the browser on ````localhost:3000````
+
+## Vector tiles  or MFJSON
+To run with the implemenation using MFJSON data, set the `isJSON` variable to true \
+To run with the implemenation using vector tiles, set the `isJSON` variable to false \
+The `isJSON` variable can be found inside `App.js` line 8
+
+#Overview
+###Danish AIS:
+
+###New York GTFS:

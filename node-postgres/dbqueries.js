@@ -13,29 +13,9 @@ const getTrips = () => pool.query('SELECT asMFJSON(transform(trip, 4326))::json 
 const getTripsNY = () => pool.query('SELECT asMFJSON(transform(trip, 4326))::json FROM trips_mdb');
 const getTripsMinMaxTS = () => pool.query('SELECT MIN(tmin(transform(trip, 4326)::stbox)), MAX(tmax(transform(trip, 4326)::stbox)) FROM Ships;')
 const getTripsMinMaxTSNY = () => pool.query('SELECT MIN(tmin(transform(trip, 4326)::stbox)), MAX(tmax(transform(trip, 4326)::stbox)) FROM trips_mdb;')
-const getTripsMVT = () => pool.query('SELECT ST_AsMVT(mvt) as mvt FROM (SELECT asMVTGeom(transform(trip, 4326), stbox \'STBOX((0,0),(100,100))\') as mvt FROM Ships LIMIT 10) as t;')
-const getTripsMixMaxTsMVT = () => pool.query('SELECT MIN(t), MAX(t) FROM trips;')
-// const getTripsWKB = () => pool.query('SELECT AsBinary(transform(trip, 4326)) FROM Ships')
+// const getTripsMVT = () => pool.query('SELECT ST_AsMVT(mvt) as mvt FROM (SELECT asMVTGeom(transform(trip, 4326), stbox \'STBOX((0,0),(100,100))\') as mvt FROM Ships LIMIT 10) as t;')
+// const getTripsMixMaxTsMVT = () => pool.query('SELECT MIN(t), MAX(t) FROM trips;')
 
-const getTripsWKB = (request, response) => {
-    // pool.query('SELECT AsBinary(transform(trip, 4326)) as wkb FROM Ships', (error, results) => {
-    pool.query('SELECT ST_asBinary(transform(trip, 4326)::geometry) as wkb FROM Ships', (error, results) => {
-        if (error) {
-            throw error
-        }
-
-        // const row = results.rows[200];
-        // const byteaData = row.wkb;
-
-        const binaryDataArray = results.rows.map(row => row.wkb);
-        const byteaData = Buffer.concat(binaryDataArray);
-
-        response.set('Content-Type', 'application/octet-stream');
-        response.set('Content-Disposition', 'attachment; filename="data.wkb"');
-
-        response.send(Buffer.from(byteaData, 'binary'));
-    })
-}
 
 const getTiles = (request, response) => {
     const z = parseInt(request.params.z)
@@ -65,8 +45,5 @@ module.exports = {
     getTripsNY,
     getTripsMinMaxTS,
     getTripsMinMaxTSNY,
-    getTripsWKB,
-    getTripsMVT,
-    getTripsMixMaxTsMVT,
     getTiles,
 }

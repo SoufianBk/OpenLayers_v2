@@ -1,17 +1,14 @@
 import React from "react";
-import './App.css';
-import MyMap from "./MyMap";
-import MapJSONdb from "./MapJSONdb";
-import MapMVT from "./MapMVT"
+import MapMVT from "./mvt/MapMVT"
+import MapJSON from "./mfjson/MapJSON";
 import Geo from "./Geo";
 import 'ol/ol.css';
 import FPSStats from "react-fps-stats";
-import MapWKB from "./MapWKB";
 
+var isJSON = true;
 
 class App extends React.Component {
 
-    // Constructor
     constructor(props) {
         super(props);
     }
@@ -20,14 +17,23 @@ class App extends React.Component {
     }
 
     render() {
-        return (
-            <div>
-                <Geo></Geo>
-                <MapJSONdb></MapJSONdb>
-                {/*<MapMVT></MapMVT>*/}
-                <FPSStats />
-            </div>
-        );
+        if(isJSON){
+            return (
+                <div>
+                    <Geo></Geo>
+                    <MapJSON></MapJSON>
+                    <FPSStats />
+                </div>
+            );
+        } else{
+            return (
+                <div>
+                    <Geo></Geo>
+                    <MapMVT></MapMVT>
+                    <FPSStats />
+                </div>
+            );
+        }
     }
 }
 
