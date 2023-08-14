@@ -29,6 +29,8 @@ Here is a list of all the endpoints created by the API:
 As long as there is a table inside the databse with an identifier named `id` and a `tgeompoint` it should be possible to display data, 
 however it is necessary to edit the query in `dbqueries.js` to match the name of the table in the databse.
 
+The database credentials are described in `dbqueries.js` and they are set to the default values. If you have changed them please edit them to match your credentials.
+
 #Vector tiles visualization
 To display vector data, pg_tileserv is used in this project. To install it, please follow the instructions
 described in the [pg_tileserv installation tutorial](https://access.crunchydata.com/documentation/pg_tileserv/latest/installation/).  It is not mandatory to install and use pg_tileserv because another solution has been implemented and requires no installation.

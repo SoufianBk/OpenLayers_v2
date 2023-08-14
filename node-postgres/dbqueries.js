@@ -4,7 +4,6 @@ const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'ais',
-    // database: 'mobilitydbdev',
     password: 'postgres',
     port: 5432,
 });
