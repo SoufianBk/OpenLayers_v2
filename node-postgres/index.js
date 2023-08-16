@@ -39,26 +39,6 @@ app.get('/json/ts', (req, res) => {
         })
 })
 
-app.get('/json/ny', (req, res) => {
-    db.getTripsNY()
-        .then(response => {
-            res.status(200).send(response.rows);
-        })
-        .catch(error => {
-            res.status(500).send(error);
-        })
-})
-
-app.get('/json/ny/ts', (req, res) => {
-    db.getTripsMinMaxTSNY()
-        .then(response => {
-            res.status(200).send(response.rows);
-        })
-        .catch(error => {
-            res.status(500).send(error);
-        })
-})
-
 app.get('/tiles/:z/:x/:y', db.getTiles)
 
 app.listen(port, () => {

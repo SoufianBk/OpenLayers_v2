@@ -59,9 +59,7 @@ function MapJSON() {
                 }),
             ],
             view: new View({
-                // center: [-73.949997, 40.650002],
                 center: [12, 55],
-                // zoom: 12
                 zoom: 6
             }),
             controls: []
@@ -233,7 +231,7 @@ function MapJSON() {
             console.log(`Load end  ${mid - startTime} milliseconds`)
         })
 
-        for (var i = 0; i < 600 /* items.length*/ ; i++) {
+        for (var i = 0; i < items.length ; i++) {
             let trip = items[i].asmfjson;
             trip.type = "LineString"
             let timestampsZ = trip.datetimes.map(element => (Math.round(toTimestamp(rectifyFormat(element)))));

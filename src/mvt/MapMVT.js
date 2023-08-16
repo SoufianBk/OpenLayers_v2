@@ -73,9 +73,7 @@ function MapMVT() {
             ],
             view: new View({
                 center: [12, 55],
-                // center: [-73.949997, 40.650002],
                 zoom: 6
-                // zoom: 12
             }),
             controls: []
         })

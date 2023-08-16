@@ -10,7 +10,7 @@ This work is the result of the research for the master thesis *Visualization of 
 # Datasets used
 Two different datasets have been used in this project:
 1. Danish AIS data imported into MobilityDB as described in the [workshop](https://www.mobilitydb.com/tutorials.html)
-2. Static GTFS data of New York as described in the [work](https://github.com/MobilityDB/MobilityDB-PublicTransport/tree/master) of a Ilias El Achouchi
+2. Static GTFS data of New York as described in the [work](https://github.com/MobilityDB/MobilityDB-PublicTransport/tree/master) of Ilias El Achouchi
 
 More details are described in the [thesis](Visualization%20of%20Mobility%20Data%20on%20OpenLayers.pdf)
 
@@ -24,7 +24,7 @@ Here is a list of all the endpoints created by the API:
 | -----------                   | ----------- |
 | **/json**                     | Returns MFJSON data       |
 | **/json/ts**                  | Returns the max and min timestamp  |
-| **/tiles/{z}/{x}/{y}**        | Returns the tile `x`,` y`at zoom level `z`  |
+| **/tiles/{z}/{x}/{y}**        | Returns the tile `x`,`y`at zoom level `z`  |
 
 As long as there is a table inside the databse with an identifier named `id` and a `tgeompoint` it should be possible to display data, 
 however it is necessary to edit the query in `dbqueries.js` to match the name of the table in the databse.
@@ -45,11 +45,15 @@ More details are described in the [thesis](Visualization%20of%20Mobility%20Data%
 
 # Build & Tutorial
 In order to reproduce this visualization you need to :
-1. ```https://github.com/SoufianBk/MobilityDB-OL.git```
+1. Clone the repository
 2. Execute in the working directory : ```npm install```
-3. Run the script that starts the API first by executing: ```npm run startAPI```
-4. To start the application, run the build script and THEN the execution script : ```npm run build``` and THEN ```npm run start```<br/>
-5. Finally to get the result, open the browser on ````localhost:3000````
+2. Make sure that the database credentials in ```dbqueries.js``` match your database   
+3. (Optional) If you have another dataset than the Danish AIS you have to adapt the queries used
+   1. Edit the name of your table and id in``tripsfct.sql``
+   2. Edit the name of your table in the queries of ``dbqueries.js``
+5. Run the script that starts the API first by executing: ```npm run startAPI```
+6. To start the application, run the build script and THEN the execution script : ```npm run build``` and THEN ```npm run start```<br/>
+7. Finally to get the result, open the browser on ````localhost:3000````
 
 ## Vector tiles  or MFJSON
 To run with the implemenation using MFJSON data, set the `isJSON` variable to true \
