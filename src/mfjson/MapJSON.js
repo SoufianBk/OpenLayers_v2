@@ -84,51 +84,51 @@ function MapJSON() {
             ts.id = "tsText"
             ts.innerHTML = new Date(min * 1000).toLocaleTimeString();
 
-            const rangeContainer = document.createElement('div');
-            rangeContainer.style.display = 'flex';
-            rangeContainer.style.width = "95%";
+            // const rangeContainer = document.createElement('div');
+            // rangeContainer.style.display = 'flex';
+            // rangeContainer.style.width = "95%";
 
-            const fromTxt = document.createElement('div')
-            fromTxt.innerHTML = "From : "
+            // const fromTxt = document.createElement('div')
+            // fromTxt.innerHTML = "From : "
 
-            const minDropdown = document.createElement('select');
-            minDropdown.id = "timestampDropdown";
-
-            // Populate the dropdown with timestamps from the range
-            for (let i = min; i <= max; i = i + 600) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = new Date(i * 1000).toLocaleString();
-                minDropdown.appendChild(option);
-            }
-
-            const toTxt = document.createElement('div')
-            toTxt.innerHTML = "  To : "
-
-            const maxDropdown = document.createElement('select');
-            maxDropdown.id = "timestampDropdown";
+            // const minDropdown = document.createElement('select');
+            // minDropdown.id = "timestampDropdown";
 
             // Populate the dropdown with timestamps from the range
-            for (let i = min; i <= max; i = i + 600) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = new Date(i * 1000).toLocaleString();
-                option.selected = "selected"
-                maxDropdown.appendChild(option);
-            }
+            // for (let i = min; i <= max; i = i + 600) {
+            //     const option = document.createElement('option');
+            //     option.value = i;
+            //     option.textContent = new Date(i * 1000).toLocaleString();
+            //     minDropdown.appendChild(option);
+            // }
 
-            const refresh = document.createElement('button')
-            refresh.id = "refresh"
-            refresh.innerHTML = "Refresh"
-            refresh.style.width = "70px"
+            // const toTxt = document.createElement('div')
+            // toTxt.innerHTML = "  To : "
+            //
+            // const maxDropdown = document.createElement('select');
+            // maxDropdown.id = "timestampDropdown";
+            //
+            // // Populate the dropdown with timestamps from the range
+            // for (let i = min; i <= max; i = i + 600) {
+            //     const option = document.createElement('option');
+            //     option.value = i;
+            //     option.textContent = new Date(i * 1000).toLocaleString();
+            //     option.selected = "selected"
+            //     maxDropdown.appendChild(option);
+            // }
+
+            // const refresh = document.createElement('button')
+            // refresh.id = "refresh"
+            // refresh.innerHTML = "Refresh"
+            // refresh.style.width = "70px"
             // refresh.style.color = "white";
             // refresh.style.backgroundColor = "#A0A0A0";
 
-            rangeContainer.appendChild(fromTxt);
-            rangeContainer.appendChild(minDropdown);
-            rangeContainer.appendChild(toTxt);
-            rangeContainer.appendChild(maxDropdown);
-            rangeContainer.appendChild(refresh)
+            // rangeContainer.appendChild(fromTxt);
+            // rangeContainer.appendChild(minDropdown);
+            // rangeContainer.appendChild(toTxt);
+            // rangeContainer.appendChild(maxDropdown);
+            // rangeContainer.appendChild(refresh)
 
             const container = document.createElement('div');
             container.style.display = 'flex';
@@ -174,7 +174,7 @@ function MapJSON() {
             element.className = 'ol-unselectable ol-control';
             element.appendChild(date);
             element.appendChild(ts);
-            element.appendChild(rangeContainer);
+            // element.appendChild(rangeContainer);
             element.appendChild(container);
 
             super({
