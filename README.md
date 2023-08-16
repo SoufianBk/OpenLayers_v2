@@ -45,7 +45,7 @@ More details are described in the [thesis](Visualization%20of%20Mobility%20Data%
 
 # Build & Tutorial
 In order to reproduce this visualization you need to :
-1. ```[https://github.com/SoufianBk/MobilityDB-OL.git](https://github.com/SoufianBk/OpenLayers_v2.git)```
+1. Clone the repo ```https://github.com/SoufianBk/OpenLayers_v2.git```
 2. Execute in the working directory : ```npm install```
 3. Run the script that starts the API first by executing: ```npm run startAPI```
 4. To start the application, run the build script and THEN the execution script : ```npm run build``` and THEN ```npm run start```<br/>
